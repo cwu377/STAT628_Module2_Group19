@@ -1,0 +1,123 @@
+---
+title: "Module 2"
+output: html_document
+date: '2022-10-10'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ISLR)
+library(dplyr)
+library(leaps)
+```
+
+## Body Fat Data
+
+```{r}
+bodyfat <- read.csv('BodyFat.csv')
+head(bodyfat)
+```
+
+## Step 1. Analyzing Raw Data
+
+```{r}
+head(bodyfat)
+tail(bodyfat)
+```
+```{r}
+summary(bodyfat)
+```
+
+```{r}
+hist(bodyfat$BODYFAT)
+```
+
+
+
+### Clean data set
+```{r}
+bodyfat2 <- bodyfat %>% select(-ADIPOSITY, -IDNO, -DENSITY) %>% mutate(HEIGHT = HEIGHT * 2.54, WEIGHT = WEIGHT*2.2)
+write.csv(bodyfat2, 'bodyfat2.csv')
+```
+
+```{r}
+cor(bodyfat2$BODYFAT, bodyfat2$WEIGHT)
+```
+
+## Some models
+
+Fitting full model:
+```{r}
+full_lm <- lm(BODYFAT ~ ., data = bodyfat2)
+summary(full_lm)
+plot(full_lm)
+```
+
+Forward stepwise? fit empty model first
+```{r}
+empty_lm <- lm(BODYFAT ~ 1, bodyfat2)
+```
+
+Best subsets with 4 criteria
+```{r}
+models <- regsubsets(BODYFAT ~ ., bodyfat2, nvmax = 3)
+models.sum <- summary(models)
+models.sum
+
+# Create four plots within a 2x2 frame to compare the different criteria
+par(mfrow = c(2,2))
+ # SSE
+plot(models.sum$rss, xlab = "Number of predictors", ylab = "SSE", type = "l")
+ # R2
+plot(models.sum$adjr2, xlab = "Number of predictors", ylab = "Adjusted RSq", type = "l")
+ # Mallow's Cp
+plot(models.sum$cp, xlab = "Number of predictors", ylab = "Cp", type = "l")
+ # BIC
+plot(models.sum$bic, xlab = "Number of predictors", ylab = "BIC", type = "l")
+```
+Refit with top 3 features from best subsets:
+```{r}
+lm3 <- lm(BODYFAT ~ WEIGHT + ABDOMEN + WRIST, bodyfat2)
+summary(lm3)
+```
+
+
+** AIC is difficult to interpret- how we want to interpret this number, negative value being better
+** using Rsquared as secondary metric to AIC??
+** issues with collinearity; VIF threshold- 15?
+** negative coefficients?
+
+## Step 4: Diagnostics
+```{r}
+pii = hatvalues(full_lm)
+cooki = cooks.distance(full_lm)
+
+par(mfrow = c(2,1))
+n = dim(bodyfat)[1]
+plot(1:n,pii,type="p",pch=19,cex=1.2,cex.lab=1.5,cex.main=1.5,
+     xlab="Index (Each Observation)",ylab="Pii",main="Leverage Values (Pii)")
+plot(1:n,cooki,type="p",pch=19,cex=1.2,cex.lab=1.5,cex.main=1.5,
+     xlab="Index (Each Observation)",ylab="Cook's Distance",main="Influence Values (Cook's Distance)")
+```
+
+
+
+### Outliers in Y, Leverage and Influential Points
+
+
+```{r}
+plot(bodyfat2$BODYFAT, bodyfat2$WEIGHT)
+plot(bodyfat2$BODYFAT, bodyfat2$ABDOMEN)
+plot(bodyfat2$BODYFAT, bodyfat2$WRIST) #linearly correlated?
+```
+
+
+```{r}
+pairs(bodyfat2)
+```
+
+
+```{r}
+
+```
