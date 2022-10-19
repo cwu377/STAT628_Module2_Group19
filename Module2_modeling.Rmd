@@ -119,5 +119,11 @@ pairs(bodyfat2)
 
 
 ```{r}
+lm3 <- lm(BODYFAT ~ ABDOMEN + WRIST, bodyfat2)
+summary(lm3)
+```
 
+```{r}
+lm3 <- lm(BODYFAT ~ ABDOMEN, bodyfat2)
+summary(lm3)
 ```
