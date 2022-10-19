@@ -1,0 +1,288 @@
+---
+title: "Module 2"
+output: html_document
+date: '2022-10-10'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ISLR)
+library(dplyr)
+library(leaps)
+library(car)
+library(devtools)
+```
+
+## Body Fat Data
+
+```{r}
+bodyfat <- read.csv('BodyFat.csv')
+```
+
+## Step 1. Analyzing Raw Data
+
+```{r}
+head(bodyfat)
+tail(bodyfat)
+```
+
+```{r}
+summary(bodyfat)
+```
+
+```{r}
+hist(bodyfat$AGE)
+hist(bodyfat$WEIGHT)
+bodyfat %>% subset(bodyfat$WEIGHT > 250)
+
+hist(bodyfat$HEIGHT)
+bodyfat %>% subset(bodyfat$HEIGHT < 50)
+
+hist(bodyfat$BODYFAT)
+hist(bodyfat$NECK)
+bodyfat %>% subset(bodyfat$NECK > 50)
+
+hist(bodyfat$CHEST)
+bodyfat %>% subset(bodyfat$CHEST > 130)
+
+hist(bodyfat$ABDOMEN)
+bodyfat %>% subset(bodyfat$ABDOMEN > 140)
+
+hist(bodyfat$HIP)
+bodyfat %>% subset(bodyfat$HIP > 120) # may have to get rid of another outlier row 41
+
+hist(bodyfat$THIGH)
+bodyfat %>% subset(bodyfat$THIGH > 75)
+
+hist(bodyfat$KNEE)
+bodyfat %>% subset(bodyfat$KNEE > 4) # 244th observation
+
+hist(bodyfat$ANKLE)
+bodyfat %>% subset(bodyfat$ANKLE<= 30) # 31, 86
+
+hist(bodyfat$BICEPS)
+bodyfat %>% subset(bodyfat$BICEPS > 40)
+
+hist(bodyfat$FOREARM)
+bodyfat %>% subset(bodyfat$FOREARM < 25) # no obv outliers
+
+hist(bodyfat$WRIST)
+bodyfat %>% subset(bodyfat$WRIST > 21) # 39, 41
+
+# most all have row 39 which is deleted bc weight is huge outlier
+
+max(bodyfat$BODYFAT)
+min(bodyfat$BODYFAT)
+sort(bodyfat$BODYFAT)
+
+ggplot(bodyfat) + geom_histogram(aes(ABDOMEN), binwidth = 5, color = 'black', fill = 'blue') + 
+    labs(title ="Histogram of Abdomen Circumference", 
+             x = "Abdomen Circumference (cm)", y = "Count") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+
+### Clean data set
+```{r}
+bodyfat_out <- bodyfat %>% subset(bodyfat$BODYFAT >= 4 & bodyfat$BODYFAT <= 40 & bodyfat$WEIGHT < 300 & bodyfat$HEIGHT > 50 & bodyfat$ANKLE <= 30 & bodyfat$WRIST <= 21) %>% select(-ADIPOSITY, -IDNO, -DENSITY) %>% mutate(HEIGHT = HEIGHT * 2.54, WEIGHT = WEIGHT*2.2)
+```
+
+```{r}
+cor(bodyfat_out)
+bodyfat_out <- bodyfat_out %>% mutate(ABDOMEN_scale = (1/6) * ABDOMEN)
+```
+
+## Modeling
+
+UPDATED: fitting fill model first with bodyfat_out data
+```{r}
+lm_out <- lm(BODYFAT ~., data = bodyfat_out)
+summary(lm_out)
+plot(lm_out, which=4, cook.levels=cutoff)
+plot(lm_out)
+```
+
+Best subsets:
+```{r}
+models <- regsubsets(BODYFAT ~ ., bodyfat_out, nvmax = 3)
+models.sum <- summary(models)
+models.sum
+
+# Create four plots within a 2x2 frame to compare the different criteria
+par(mfrow = c(2,2))
+ # SSE
+plot(models.sum$rss, xlab = "Number of predictors", ylab = "SSE", type = "l")
+ # R2
+plot(models.sum$adjr2, xlab = "Number of predictors", ylab = "Adjusted RSq", type = "l")
+ # Mallow's Cp
+plot(models.sum$cp, xlab = "Number of predictors", ylab = "Cp", type = "l")
+ # BIC
+plot(models.sum$bic, xlab = "Number of predictors", ylab = "BIC", type = "l")
+```
+```{r}
+lm3 <- lm(BODYFAT ~ WRIST + ABDOMEN + HIP, bodyfat3)
+summary(lm3)
+vif(lm3)
+```
+
+Refit with top 3 features from best subsets:
+```{r}
+lm3 <- lm(BODYFAT ~ WEIGHT + ABDOMEN + WRIST, bodyfat_out)
+summary(lm3)
+vif(lm3)
+```
+
+
+Diagnostic plots for 3-factor model:
+```{r}
+# Save predicted values
+bodyfat_out$predicted <- predict(lm_ab)
+# Save residuals
+bodyfat_out$resids <- residuals(lm_ab)
+# Residuals vs Fitted values plot
+ggplot(bodyfat_out, aes(x = predicted, y = resids)) + 
+        geom_point() + geom_hline(yintercept = 0, color = "blue") + 
+        labs(title ="Residuals versus Fitted values", 
+             x = "Fitted values", y = "Residuals")
+```
+
+Residuals vs. abdomen predictor:
+```{r}
+# Residuals vs. Biomass predictor plot
+ggplot(bodyfat_out, aes(x = ABDOMEN, y = resids)) + geom_point() + 
+        geom_hline(yintercept = 0, color = "blue") + 
+        labs(title ="Residuals versus Predictor of Biomass", x = "Biomass", 
+             y = "Residuals")
+```
+
+Q-Q:
+```{r}
+# Normal probability plot
+ggplot(bodyfat_out, aes(sample = resids)) + stat_qq() + stat_qq_line() +
+ labs(title ="Normal probability plot",
+ x = "Theoretical percentiles", y = "Sample percentiles") 
+```
+
+
+Some reduced models:
+```{r}
+lm_2 <- lm(BODYFAT ~ WRIST + ABDOMEN, bodyfat2)
+summary(lm2)
+vif(lm2)
+```
+
+```{r}
+lm2 <- lm(BODYFAT ~ ABDOMEN + WEIGHT, bodyfat_out)
+summary(lm2)
+vif(lm2)
+```
+
+```{r}
+lm_wrist <- lm(BODYFAT ~ WRIST, bodyfat_out)
+summary(lm_wrist)
+```
+
+```{r}
+lm_weight <- lm(BODYFAT ~ WEIGHT, bodyfat_out)
+summary(lm_weight)
+```
+
+
+## FINAL MODEL:
+```{r}
+lm_ab <- lm(BODYFAT ~ ABDOMEN, bodyfat_out)
+summary(lm_ab)
+plot(lm_ab)
+```
+
+## Diagnostic Plots 
+```{r}
+# eq <- function(x,y) {
+#   m <- lm(y ~ x)
+#   as.character(
+#     as.expression(
+#       substitute(italic(y) == a + b %.% italic(x)*","~~italic(R)^2~"="~r2,
+#                 list(a = format(coef(m)[1], digits = 4),
+#                 b = format(coef(m)[2], digits = 4),
+#                 r2 = format(summary(m)$r.squared, digits = 3)))
+#     )
+#   )
+# }
+
+eq <- function(df, x, y){
+    m <- lm(y ~ x, df);
+    eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(R)^2~"="~r2, 
+         list(a = format(unname(coef(m)[1]), digits = 2),
+              b = format(unname(coef(m)[2]), digits = 2),
+             r2 = format(summary(m)$r.squared, digits = 3)))
+    as.character(as.expression(eq));
+}
+
+
+ggplot(bodyfat_out, aes(x=ABDOMEN, y=BODYFAT)) +
+  geom_point() +   
+  geom_smooth(method='lm', se=FALSE) + 
+  geom_text(x = 80, y = 30, label = eq(bodyfat_out, bodyfat_out$ABDOMEN, bodyfat_out$BODYFAT ), parse = TRUE) +
+  labs(title ="Regression Plot", 
+             x = "Abdomen Circumference (cm)", y = "Bodyfat %") + 
+  theme(plot.title = element_text(hjust = 0.5))
+  
+# code taken from https://www.roelpeters.be/how-to-add-a-regression-equation-and-r-squared-in-ggplot2/ for adding text into scatterplot
+```
+
+Residuals vs fitted values:
+```{r}
+# Save predicted values
+bodyfat_out$predicted <- predict(lm_ab)
+# Save residuals
+bodyfat_out$resids <- residuals(lm_ab)
+# Residuals vs Fitted values plot
+ggplot(bodyfat_out, aes(x = predicted, y = resids)) + 
+        geom_point() + geom_hline(yintercept = 0, color = "blue") + 
+        labs(title ="Residuals versus Fitted values", 
+             x = "Predicted % Bodyfat", y = "Residual Values") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Residuals vs. abdomen predictor:
+```{r}
+# Residuals vs. predictor plot
+ggplot(bodyfat_out, aes(x = ABDOMEN, y = resids)) + geom_point() + 
+        geom_hline(yintercept = 0, color = "blue") + 
+        labs(title ="Residuals versus Predictor of Abdomen Circumference", 
+             x = "Abdomen Circumference (cm)", 
+             y = "Residual Values") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+Q-Q:
+```{r}
+# Normal probability plot
+ggplot(bodyfat_out, aes(sample = resids)) + stat_qq() + stat_qq_line() +
+ labs(title ="Normal probability plot",
+ x = "Theoretical percentiles", y = "Sample percentiles") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+
+Forward stepwise? fit empty model first
+```{r}
+# Fit an empty model with only the response
+FitStart <- lm(BODYFAT ~ 1, bodyfat_out)
+
+
+# Fit a full model with all predictors
+FitAll <- lm(BODYFAT ~ ., bodyfat_out)
+
+# Run the stepwise regression with forward selection based on the AIC criterion
+step(FitStart,direction="forward", scope = formula(FitAll))
+```
+
+** AIC is difficult to interpret- how we want to interpret this number, negative value being better
+** using Rsquared as secondary metric to AIC??
+** issues with collinearity; VIF threshold- 15?
+** negative coefficients?
