@@ -1,8 +1,10 @@
 library(shiny)
 library(shinythemes)
 library(tidyverse)
+library(DT)
 
 data <- read_csv('bodyfat3.csv', col_select = BODYFAT)
+bodyfat_ref <- read_csv('BodyFat_reference.csv', col_select = c(Description, Women, Men))
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -30,14 +32,16 @@ ui <- fluidPage(
         ),
 
         mainPanel(
-           plotOutput('plot')
+           plotOutput('plot'),
+           dataTableOutput('bodyfat_ref')
         ),
     ),
     hr(),
     tags$div(
         class = "footer",
-        HTML('Developed by: <br> Chao-Sheng Wu: cwu377@wisc.edu 
-             <br> Amy Qin: qin58@wisc.edu
+        HTML('Developed by: 
+             <br> Amy Qin: qin58@wisc.edu 
+             <br> Chao-Sheng Wu: cwu377@wisc.edu
              <br> Maxwell Schleck: mschleck98@wisc.edu')
     )
 )
@@ -77,8 +81,13 @@ server <- function(input, output) {
             geom_histogram(bins=30) +
             geom_vline(xintercept=r, color='red') +
             geom_text(aes(x=r,label="You are here",y=5), color='red', angle=90, vjust=-1) +
-            labs(y='COUNT')
+            labs(y='COUNT', x="BodyFat %")
     })
+    
+    output$bodyfat_ref <- renderDataTable(bodyfat_ref, 
+                                          rownames = FALSE,
+                                          caption = 'The American Council on Ecercise Body Fat Categorization',
+                                          options = list(dom = 't'))
 }
 
 # Run the application 
