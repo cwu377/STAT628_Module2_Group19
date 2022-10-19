@@ -10,57 +10,66 @@ ui <- fluidPage(
     shinyFeedback::useShinyFeedback(),
     # Application title
     titlePanel("Body Fat Calculator"),
-
-    # Sidebar with a slider input for number of bins 
+    
     sidebarLayout(
         sidebarPanel(
+            # numericInput(
+            #     "num_weight", "Weight: ", 200, min=100, max=400
+            # ),
             numericInput(
-                "num_weight", "Weight: ", 200, min=100, max=400
+                "num_abdomen", "Abdomen(cm): ", 90, min=60, max=150
             ),
-            numericInput(
-                "num_abdomen", "Abdomen: ", 90, min=60, max=150
-            ),
-            numericInput(
-                "num_wrist","Wrist: ", 19, min=12, max=25
-            ),
+            # numericInput(
+            #     "num_wrist","Wrist: ", 19, min=12, max=25
+            # ),
             actionButton("calculate", "Calculate", class="btn-primary"),
             tags$div(
                 class = "jumbotron",
                 span( textOutput('txt'), style="color:blue;font-size:20px" )
-            )
-            #textOutput('txt')
+            ),
         ),
 
-        # Show a plot of the generated distribution
         mainPanel(
            plotOutput('plot')
-        )
+        ),
+    ),
+    hr(),
+    tags$div(
+        class = "footer",
+        HTML('Developed by: <br> Chao-Sheng Wu: cwu377@wisc.edu 
+             <br> Amy Qin: qin58@wisc.edu
+             <br> Maxwell Schleck: mschleck98@wisc.edu')
     )
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
     
     get_bodyfatper <- eventReactive(input$calculate, {
-        #input$num_weight
-        a <- input$num_weight
-        weight_check <- a>0
-        shinyFeedback::feedbackWarning("num_weight", !weight_check, "Weight can't be non-positive!")
-
-        b <- input$num_wrist
-        wrist_check <- b>0
-        shinyFeedback::feedbackWarning("num_wrist", !wrist_check, "Wrist size can't be non-positive!")
+        # a <- input$num_weight
+        # weight_check <- a>0
+        # shinyFeedback::feedbackWarning("num_weight", !weight_check, "Weight can't be non-positive!")
+        # 
+        # b <- input$num_wrist
+        # wrist_check <- b>0
+        # shinyFeedback::feedbackWarning("num_wrist", !wrist_check, "Wrist size can't be non-positive!")
 
         c <- input$num_abdomen
-        abdomen_check <- b>0
+        abdomen_check <- c>0
         shinyFeedback::feedbackWarning("num_abdomen", !abdomen_check, "Abdomen size can't be non-positive!")
 
-        result <- -24.28103 + 0.87553*c - 1.22982*b - 0.03892*a
+        result <- -37.54 + 0.61*c #- 1.22982*b - 0.03892*a
+        
+        # Body fat percentage should be between 0~100
+        if (result<=0){
+            result <-0
+        } else if (result>=100){
+            result <- 100
+        }
         return (result)
     })
     output$txt <- renderText({ 
         r <- get_bodyfatper()
-        paste(r,"%")
+        paste("Body Fat: ", r, "%", sep="")
     })
     output$plot <- renderPlot({ 
         r <- get_bodyfatper()
