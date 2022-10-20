@@ -30,6 +30,7 @@ So, I would just list the lines corresponding to each image.
   - image4.png: Residuals v.s. Fitted Values (line 220~231)
   - image5.png: QQ plot (line 246~252)
   - image6.png: Best Subset Method with SSE, R2, Cp and BIC (line 108~123)
+  - image7.png: Cook's Distance (line 100~105)
 
 - Two-page Summary
 - README: You are reading me now
