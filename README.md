@@ -34,9 +34,5 @@ So, I would just list the lines corresponding to each image.
 - README: You are reading me now
 
 ## Usage
-If you would like to use model_update_final.Rmd, make sure you put BodyFat.csv and bodyfat_out.csv to the same layer.
+If you would like to use our report, make sure you put model_update_final.Rmd, BodyFat.csv and bodyfat_out.csv to the same folder.
 
-## Credits
-- Amy Qin: 
-- Chao-Sheng Wu: 
-- Maxwell Schleck:
