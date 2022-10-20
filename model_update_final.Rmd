@@ -121,11 +121,6 @@ plot(models.sum$cp, xlab = "Number of predictors", ylab = "Cp", type = "l")
  # BIC
 plot(models.sum$bic, xlab = "Number of predictors", ylab = "BIC", type = "l")
 ```
-```{r}
-lm3 <- lm(BODYFAT ~ WRIST + ABDOMEN + HIP, bodyfat3)
-summary(lm3)
-vif(lm3)
-```
 
 Refit with top 3 features from best subsets:
 ```{r}
@@ -138,9 +133,9 @@ vif(lm3)
 Diagnostic plots for 3-factor model:
 ```{r}
 # Save predicted values
-bodyfat_out$predicted <- predict(lm_ab)
+bodyfat_out$predicted <- predict(lm3)
 # Save residuals
-bodyfat_out$resids <- residuals(lm_ab)
+bodyfat_out$resids <- residuals(lm3)
 # Residuals vs Fitted values plot
 ggplot(bodyfat_out, aes(x = predicted, y = resids)) + 
         geom_point() + geom_hline(yintercept = 0, color = "blue") + 
@@ -168,7 +163,7 @@ ggplot(bodyfat_out, aes(sample = resids)) + stat_qq() + stat_qq_line() +
 
 Some reduced models:
 ```{r}
-lm_2 <- lm(BODYFAT ~ WRIST + ABDOMEN, bodyfat2)
+lm2 <- lm(BODYFAT ~ WRIST + ABDOMEN, bodyfat_out)
 summary(lm2)
 vif(lm2)
 ```
@@ -199,17 +194,6 @@ plot(lm_ab)
 
 ## Diagnostic Plots 
 ```{r}
-# eq <- function(x,y) {
-#   m <- lm(y ~ x)
-#   as.character(
-#     as.expression(
-#       substitute(italic(y) == a + b %.% italic(x)*","~~italic(R)^2~"="~r2,
-#                 list(a = format(coef(m)[1], digits = 4),
-#                 b = format(coef(m)[2], digits = 4),
-#                 r2 = format(summary(m)$r.squared, digits = 3)))
-#     )
-#   )
-# }
 
 eq <- function(df, x, y){
     m <- lm(y ~ x, df);
