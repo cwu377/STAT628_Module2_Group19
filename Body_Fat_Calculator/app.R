@@ -3,7 +3,7 @@ library(shinythemes)
 library(tidyverse)
 library(DT)
 
-data <- read_csv('bodyfat3.csv', col_select = BODYFAT)
+data <- read_csv('bodyfat_out.csv', col_select = BODYFAT)
 bodyfat_ref <- read_csv('BodyFat_reference.csv', col_select = c(Description, Women, Men))
 
 # Define UI for application that draws a histogram

@@ -5,7 +5,7 @@ account: cwu377
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7326733
-bundleId: 6420482
+bundleId: 6420922
 url: https://cwu377.shinyapps.io/body_fat_calculator/
-when: 1666211171.93599
-lastSyncTime: 1666211171.936
+when: 1666220306.89118
+lastSyncTime: 1666220306.89119
