@@ -25,10 +25,11 @@ You could play around with our model: [Body Fat Calculator](https://cwu377.shiny
 All images were produced by "model_update_final.Rmd". 
 So, I would just list the lines corresponding to each image. 
   - image1.png: Histogram of Abdomen (line 34~83)
-  - image2.png: Best Subset Method (line 108~123)
+  - image2.png: Best Subset Method with SSE and R2 (line 108~123)
   - image3.png: BodyFat% v.s. Abdomen (line 196~217)
   - image4.png: Residuals v.s. Fitted Values (line 220~231)
   - image5.png: QQ plot (line 246~252)
+  - image6.png: Best Subset Method with SSE, R2, Cp and BIC (line 108~123)
 
 - Two-page Summary
 - README: You are reading me now
