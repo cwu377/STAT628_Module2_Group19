@@ -15,15 +15,9 @@ ui <- fluidPage(
     
     sidebarLayout(
         sidebarPanel(
-            # numericInput(
-            #     "num_weight", "Weight: ", 200, min=100, max=400
-            # ),
             numericInput(
                 "num_abdomen", "Abdomen(cm): ", 90, min=60, max=150
             ),
-            # numericInput(
-            #     "num_wrist","Wrist: ", 19, min=12, max=25
-            # ),
             actionButton("calculate", "Calculate", class="btn-primary"),
             tags$div(
                 class = "jumbotron",
