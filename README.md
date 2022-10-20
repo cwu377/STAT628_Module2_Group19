@@ -7,6 +7,10 @@ You could play around with our model: [Body Fat Calculator](https://cwu377.shiny
 
 ## Repo Structure
 
+- data
+  - BodyFat.csv: Original data
+  - bodyfat_out.csv: Removing ADIPOSITY, IDNO and DENSITY. Also, getting rid of ourliers and unreasonable data (e.g. bodyfat% < 4) 
+
 - code 
   - Analysis
     - model_update_final.Rmd: This is our analysis report, which contains detail process of how we obtain our model. Also, this report also produced all results for our 2-page summary and presentation.  
@@ -25,9 +29,7 @@ So, I would just list the lines corresponding to each image.
   - image3.png: BodyFat% v.s. Abdomen (line 196~217)
   - image4.png: Residuals v.s. Fitted Values (line 220~231)
   - image5.png: QQ plot (line 246~252)
-- data
-  - BodyFat.csv: Original data
-  - bodyfat_out.csv: Removing ADIPOSITY, IDNO and DENSITY. Also, getting rid of ourliers and unreasonable data (e.g. bodyfat% < 4) 
+
 - Two-page Summary
 - README: You are reading me now
 
@@ -36,5 +38,5 @@ If you would like to use model_update_final.Rmd, make sure you put BodyFat.csv a
 
 ## Credits
 - Amy Qin: 
-- Chao-Sheng Wu:
-- Maxwell Schleck
+- Chao-Sheng Wu: 
+- Maxwell Schleck:
